@@ -24,29 +24,42 @@
           </v-toolbar>
           <div style="height: 60px;"></div>
           <v-card-text>
-            <v-subheader>Progress</v-subheader>
 
-            <v-container grid-list-md text-xs-center>
-              <v-layout row>
-                <v-flex xl6>
-                  <v-progress-linear v-model="filesProgress" height="15"></v-progress-linear>
-                </v-flex>
 
-                <v-flex xl6>
-                  <p>Uploading files {{ uploadedCount }} out of {{ files.length }}</p>
-                </v-flex>
-              </v-layout>
 
-              <v-layout row>
-                <v-flex xl6>
-                   <v-progress-linear v-model="bytesProgress" height="15"></v-progress-linear>
-                </v-flex>
 
-                <v-flex xl6>
-                  Uploading bytes {{ uploadedBytes }} out of {{ allBytes }}
-                </v-flex>
-              </v-layout>
-            </v-container>
+            <v-list subheader>
+              <v-subheader>Progress</v-subheader>
+
+              <v-list-tile avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>Simultaneous uploads: <b>{{simultaneousUploads}}</b></v-list-tile-title>
+                  <v-list-tile-sub-title>
+                      <v-slider
+                        v-model="simultaneousUploads"
+                        max="10"
+                        min="0"
+                      ></v-slider>
+                  </v-list-tile-sub-title>
+                  <v-list-tile-sub-title>
+
+                  </v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+
+              <v-list-tile avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>Uploading files {{ uploadedCount }} out of {{ files.length }}</v-list-tile-title>
+                  <v-list-tile-sub-title><v-progress-linear v-model="filesProgress" height="15"></v-progress-linear></v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>Uploading bytes {{ uploadedBytes }} out of {{ allBytes }}</v-list-tile-title>
+                  <v-list-tile-sub-title><v-progress-linear v-model="bytesProgress" height="15"></v-progress-linear></v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
 
             <v-subheader>
               File List
@@ -84,7 +97,6 @@
 import {mapActions, mapState} from 'vuex'
 import { DirectUpload } from "activestorage"
 
-const UPLOAD_QUEUE_SIZE = 3
 const STATUS_QUEUED = 'queued'
 const STATUS_UPLOADING = 'uploading'
 const STATUS_DONE = 'done'
@@ -98,7 +110,8 @@ export default {
     return {
       dialog: false,
       files: [],
-      uploadsInProgress: 0
+      uploadsInProgress: 0,
+      simultaneousUploads: 3
     }
   },
 
@@ -147,7 +160,7 @@ export default {
 
     upload () {
       for(const [index, file] of this.files.entries()) {
-        if (this.uploadsInProgress >= UPLOAD_QUEUE_SIZE) break
+        if (this.uploadsInProgress >= this.simultaneousUploads) break
         if (file.status !== 'queued') continue
         let promise = this.uploadFile(file, index)
         promise.then(() => this.finnishUpload(index))
