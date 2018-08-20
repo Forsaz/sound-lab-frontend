@@ -13,8 +13,8 @@ import moment from 'moment'
 Vue.filter('formatDate', function(value, format) {
     const default_format = 'DD.MM.YYYY hh:mm'
     if (value) {
-          return moment(String(value)).format(format || default_format)
-        }
+      return moment(String(value)).format(format || default_format)
+    }
 })
 
 Vue.use(VueAxios, api)
