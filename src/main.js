@@ -5,6 +5,21 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+import VueAxios from 'vue-axios'
+import VueConfirm from 'vuetify-confirm'
+import api from './api'
+
+import moment from 'moment'
+Vue.filter('formatDate', function(value, format) {
+    const default_format = 'DD.MM.YYYY hh:mm'
+    if (value) {
+          return moment(String(value)).format(format || default_format)
+        }
+})
+
+Vue.use(VueAxios, api)
+Vue.use(VueConfirm)
+
 Vue.config.productionTip = false
 
 new Vue({
