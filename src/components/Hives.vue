@@ -12,7 +12,7 @@
       <v-layout row wrap>
         <v-flex xs12 sm4 md3 v-for="hive in hives" :key="hive.id">
           <v-card>
-            <v-card-media src="/public/beehive.webp" height="200px">
+            <v-card-media src="./beehive.webp" height="200px">
             </v-card-media>
             <v-card-title primary-title>
               <div>
