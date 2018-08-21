@@ -17,6 +17,9 @@ Vue.filter('formatDate', function(value, format) {
     }
 })
 
+import filesize from 'filesize'
+Vue.filter('filesize', function(value) { return filesize(value) })
+
 Vue.use(VueAxios, api)
 Vue.use(VueConfirm)
 

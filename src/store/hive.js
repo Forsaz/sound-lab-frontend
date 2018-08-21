@@ -43,10 +43,7 @@ const actions = {
     }
 
 
-    return this._vm.$http.post(`/hives/${hiveId}/sounds`, data).then((response) => {
-      console.log('Response: ', response)
-      dispatch('loadSounds', hiveId)
-    })
+    return this._vm.$http.post(`/hives/${hiveId}/sounds`, data)
   }
 }
 
