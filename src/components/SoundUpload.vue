@@ -80,7 +80,7 @@
                         <v-icon v-show="failedFilesCount > 0">error</v-icon>
                       </v-list-tile-avatar>
                       <v-list-tile-content>
-                        <v-list-tile-title>Failed Files <v-icon color="red" v-show="failedFilesCount > 0">error</v-icon></v-list-tile-title>
+                        <v-list-tile-title>Failed Files</v-list-tile-title>
                         <v-list-tile-sub-title>{{failedFilesCount}}</v-list-tile-sub-title>
                       </v-list-tile-content>
                     </v-list-tile>
@@ -148,6 +148,7 @@
 <script>
 import {mapActions, mapState} from 'vuex'
 import { DirectUpload } from "activestorage"
+import _ from 'underscore'
 
 const STATUS_QUEUED = 'queued'
 const STATUS_UPLOADING = 'uploading'
@@ -254,7 +255,8 @@ export default {
         },
         directUploadWillStoreFileWithXHR(xhr) {
           xhr.setRequestHeader("Authorization", `Bearer ${that.token}`)
-          xhr.upload.addEventListener("progress", (event) => { that.fileUploadDidProgress(file, event) })
+          let throttledProgress = _.throttle((event) => that.fileUploadDidProgress(file, event), 1000)
+          xhr.upload.addEventListener("progress", throttledProgress)
         }
       }
 
