@@ -5,6 +5,7 @@ import Dashboard from '@/components/Dashboard'
 import Hives from '@/components/Hives'
 import Users from '@/components/Users'
 import Hive from '@/components/Hive'
+import Sound from '@/components/Sound'
 
 Vue.use(Router)
 
@@ -33,6 +34,13 @@ export default new Router({
       name: 'hive',
       component: Hive,
       props: true
-    }
+    },
+
+    {
+      path: '/sounds/:id',
+      name: 'sound',
+      component: Sound,
+      props: true
+    },
   ]
 })

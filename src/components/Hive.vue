@@ -21,9 +21,14 @@
             </v-card-title>
 
             <v-card-text>
-              <v-data-table :headers="soundsHeaders" :items="sounds" class="elevation-0" :rows-per-page-items="[15,50,100]">
+              <v-data-table :headers="soundsHeaders" :items="sounds" class="elevation-0" :rows-per-page-items="[15,50,100]" :loading="soundsLoading">
                 <template slot="items" slot-scope="props">
-                  <td>{{ props.item.file_name }}</td>
+                  <td>
+                    <router-link :to="{ name: 'sound', params: { id: props.item.id }}">
+                      {{ props.item.file_name }}
+                    </router-link>
+                  </td>
+                  <td>{{ props.item.channel }}</td>
                   <td>{{ props.item.recorded_at | formatDate }}</td>
                   <td>{{ props.item.duration }}</td>
                 </template>
@@ -46,13 +51,14 @@ export default {
   components: {SoundUpload},
 
   computed: {
-    ...mapState('hive', ['name', 'sounds'])
+    ...mapState('hive', ['name', 'sounds', 'soundsLoading'])
   },
 
   data () {
     return {
       soundsHeaders: [
         { text: 'Filename', value: 'file_name' },
+        { text: 'Channel', value: 'channel' },
         { text: 'Recorded At', value: 'recorded_at' },
         { text: 'Duration (Seconds)', value: 'duration' }
       ],

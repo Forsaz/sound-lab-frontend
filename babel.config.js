@@ -6,5 +6,6 @@ module.exports = {
         "useBuiltIns": "entry"
       }
     ]
-  ]
+  ],
+  "plugins": ["transform-class-properties"]
 }

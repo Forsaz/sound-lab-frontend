@@ -1,6 +1,7 @@
 const state = {
   id: null,
   name: null,
+  soundsLoading: false,
   sounds: []
 }
 
@@ -8,6 +9,9 @@ const getters = {
 }
 
 const mutations = {
+  soundsLoading: (state) => state.soundsLoading = true,
+  soundsLoaded: (state) => state.soundsLoading = false,
+
   setHive (state, {id, name}) {
     state.id = id
     state.name = name
@@ -27,9 +31,11 @@ const actions = {
   },
 
   loadSounds ({commit, state}, id) {
+    commit('soundsLoading')
     this._vm.$http.get(`/hives/${id}/sounds`).then((response) => {
       let sounds = response.data
       commit('setSounds', sounds)
+      commit('soundsLoaded')
     })
   },
 
