@@ -5,7 +5,14 @@
         <v-flex>
           <v-card>
             <v-card-title primary-title>
+              <h2>
+                <router-link :to="{ name: 'hive', params: { id: hive_id }}">
+                  Back To Hive
+                </router-link>
+              </h2>
+
               <h3>Sound: {{file_name}}</h3>
+              
             </v-card-title>
 
             <v-card-text>
@@ -34,7 +41,7 @@
             </v-card-title>
 
             <v-card-text>
-              
+              <audio-sample :sound_url="file_url" v-if="file_url"></audio-sample>
             </v-card-text>
           </v-card>
         </v-flex>
@@ -44,7 +51,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapMutations } from 'vuex'
 import AudioSample from '@/components/wavesurfer/AudioSample'
 
 export default {
@@ -52,14 +59,16 @@ export default {
   props: ['id'],
 
   computed: {
-    ...mapState('sound', ['file_name', 'channel', 'recorded_at', 'created_at', 'duration', 'completed_analysers'])
+    ...mapState('sound', ['file_url', 'file_name', 'channel', 'recorded_at', 'created_at', 'duration', 'completed_analysers', 'hive_id'])
   },
 
   methods: {
-    ...mapActions('sound', ['load']),
+    ...mapActions('sound', ['load', 'reset']),
+    ...mapMutations('sound', ['setFileUrl'])
   },
 
   mounted() {
+    this.reset()
     this.load(this.id)
   }
 }

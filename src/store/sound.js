@@ -1,5 +1,6 @@
 const state = {
   id: null,
+  hive_id: null,
   file_name: null,
   channel: null,
   recorded_at: null,
@@ -13,7 +14,7 @@ const getters = {
 }
 
 const mutations = {
-  setSound (state, {id, file_name, channel, recorded_at, created_at, duration, completed_analysers}) {
+  setSound (state, {id, file_name, channel, recorded_at, created_at, duration, completed_analysers, hive_id}) {
     state.id = id
     state.file_name = file_name
     state.channel = channel
@@ -21,9 +22,10 @@ const mutations = {
     state.created_at = created_at
     state.duration = duration
     state.completed_analysers = completed_analysers
+    state.hive_id = hive_id
   },
 
-  setFileUrl(state, url) {
+  setFileUrl (state, {url}) {
     state.file_url = url
   }
 }
@@ -36,9 +38,14 @@ const actions = {
     })
 
     this._vm.$http.get(`/sounds/${id}/file_url`).then((response) => {
-      let url = response.url
-      commit('setFileUrl', url)
+      let json = response.data
+      commit('setFileUrl', json)
     })
+  },
+
+  reset({commit}) {
+    commit('setSound', {})
+    commit('setFileUrl', {})
   }
 }
 

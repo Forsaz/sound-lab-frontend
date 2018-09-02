@@ -1,11 +1,6 @@
 module.exports = {
-  "presets": [
-    [
-      "@vue/app",
-      {
-        "useBuiltIns": "entry"
-      }
-    ]
+  presets: [
+    '@vue/app'
   ],
-  "plugins": ["transform-class-properties"]
+  plugins: ['transform-class-properties']
 }
