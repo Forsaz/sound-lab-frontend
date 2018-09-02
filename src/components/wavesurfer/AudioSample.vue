@@ -1,9 +1,9 @@
 <template>
   <div>
-    <a href="#" class="btn btn-primary" @click.prevent="togglePlay">Play / Pause</a>
+    <v-btn @click.prevent="togglePlay">Play / Pause (space)</v-btn>
     <div class="audio-visual">
-      <div class="waveform-container"></div>
-      <div class="spectrogram-container">
+      <div class="waveform-container" ref="waveform-container"></div>
+      <div class="spectrogram-container" ref="spectrogram-container">
         <annotation
           v-if="activeAnnotaion"
           :start-pos="activeAnnotaion.startPos"
@@ -34,6 +34,7 @@
 <script>
 
 const MIN_ANNOTATION_WIDTH = 10
+const KEY_CODE_SPACE = 32
 let NAMES = ['A','B','C','D','E','F','G','H']
 
 import WaveSurfer from 'wavesurfer.js/src/wavesurfer'
@@ -51,6 +52,7 @@ export default {
     return {
       isPlaying: false,
       activeAnnotaion: null,
+      playPauseIfSpace: null,
       annotations: []
     }
   },
@@ -156,9 +158,22 @@ export default {
 
         this.wavesurfer.spectrogram.on('dragStop', (e) => { 
           this.finnishActiveAnnotation(e.startPos, e.stopPos, e.startProgress, e.stopProgress)
-         })
+        })
+
+        this.playPauseIfSpace = function (e) {
+          if (e.keyCode === KEY_CODE_SPACE) { 
+            e.preventDefault()
+            this.wavesurfer.playPause()
+          }
+        }.bind(this)
+        window.addEventListener('keypress', this.playPauseIfSpace)
       })
     })
+  },
+
+  beforeDestroy() {
+    if (this.wavesurfer) this.wavesurfer.destroy()
+    window.removeEventListener('keypress', this.playPauseIfSpace)
   }
 }
 </script>

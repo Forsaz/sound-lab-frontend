@@ -1,8 +1,8 @@
 <template>
   <div :class="{ annotation: true, active: isActive}">
     <div class="handle" :style="{ left: startPos + 'px', width: width + 'px', top: topPosition + 'px' }" @click.stop="$emit('activate')">
-      <div class="remove" @click.stop="play"><v-icon size="15" color="white">play_circle_filled</v-icon></div>
       <div class="remove" @click.stop="remove"><v-icon size="15" color="white">cancel</v-icon></div>
+      <div class="remove" @click.stop="play"><v-icon size="15" color="white">play_circle_filled</v-icon></div>
       {{name}}
     </div>
     <div class="overlay" :style="{ left: startPos + 'px', width: width + 'px' }" v-show="width > 10"></div>
