@@ -9,6 +9,7 @@ ADD src/ src/
 ADD babel.config.js .
 ADD .postcssrc.js .
 ADD .env .
+ADD vue.config.js .
 RUN npm run build
 
 FROM nginx:1-alpine
