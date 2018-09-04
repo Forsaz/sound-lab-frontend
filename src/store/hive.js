@@ -23,6 +23,11 @@ const mutations = {
 }
 
 const actions = {
+  reset({commit}) {
+    commit('setHive', {})
+    commit('setSounds', [])
+  },
+
   load ({commit}, id) {
     this._vm.$http.get(`/hives/${id}`).then((response) => {
       let hive = response.data

@@ -66,12 +66,16 @@ export default {
   },
 
   methods: {
-    ...mapActions('hive', ['load', 'loadSounds']),
+    ...mapActions('hive', ['reset','load', 'loadSounds']),
   },
 
   mounted() {
     this.load(this.id)
     this.loadSounds(this.id)
+  },
+
+  beforeDestroy() {
+    this.reset()
   }
 }
 </script>

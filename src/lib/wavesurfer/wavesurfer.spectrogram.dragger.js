@@ -4,6 +4,7 @@ class Dragger {
     this.container = container;
     this.containerBbox = container.getBoundingClientRect();
     this.dragState = {};
+    this.reset()
     this.registerEvents();
   }
 
@@ -43,6 +44,7 @@ class Dragger {
     this.dragState.stopPos = null;
     this.dragState.startProgress = null;
     this.dragState.stopProgress = null;
+    this.dragState.containerWidth = this.containerBbox.width;
   }
 
   getProgress ({clientX}) {

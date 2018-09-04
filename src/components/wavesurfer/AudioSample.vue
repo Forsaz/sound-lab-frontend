@@ -1,32 +1,34 @@
 <template>
   <div>
-    <v-btn @click.prevent="togglePlay">Play / Pause (space)</v-btn>
     <div class="audio-visual">
       <div class="waveform-container" ref="waveform-container"></div>
       <div class="spectrogram-container" ref="spectrogram-container">
         <annotation
-          v-if="activeAnnotaion"
-          :start-pos="activeAnnotaion.startPos"
-          :stop-pos="activeAnnotaion.stopPos"
-          :elevation="activeAnnotaion.elevation"
+          v-if="tmpAnnotation"
+          :offset="tmpAnnotation.offset"
+          :length="tmpAnnotation.length"
+          :sound-duration="duration"
+          :container-width="containerWidth"
+          :elevation="elevations[tmpAnnotation.id]"
           :is-active="true"
           key="active">
         </annotation>
-        <annotation v-for="(annotation, index) in annotations" 
-          :start-pos="annotation.startPos"
-          :stop-pos="annotation.stopPos"
-          :start-progress="annotation.startProgress"
-          :stop-progress="annotation.stopProgress"
-          :elevation="annotation.elevation"
-          :name="annotation.name"
-          :key="index"
-          :is-active="annotation.isActive"
-          @remove="removeAnnotation(index)"
+        <annotation v-if="wavesurferReady" v-for="(annotation, index) in sound_labels" 
+          :offset="annotation.offset"
+          :length="annotation.length"
+          :elevation="elevations[annotation.id]"
+          :sound-duration="duration"
+          :container-width="containerWidth"
+          :key="annotation.id"
+          :is-active="annotation.id === activeAnnotationId"
+          @remove="destroySoundLabel(annotation.id)"
           @play="playAnnotation"
-          @activate="activateAnotation(index)">
+          @activate="activateAnotation(annotation.id)"
+          @deactivate="activateAnotation(-1)">
         </annotation>
 
       </div>
+      <v-btn @click.prevent="togglePlay">Play / Pause (space)</v-btn>
     </div>
   </div>
 </template>
@@ -35,7 +37,7 @@
 
 const MIN_ANNOTATION_WIDTH = 10
 const KEY_CODE_SPACE = 32
-let NAMES = ['A','B','C','D','E','F','G','H']
+let COUNTER = 1
 
 import WaveSurfer from 'wavesurfer.js/src/wavesurfer'
 import Spectrogram from '@/lib/wavesurfer/wavesurfer.spectrogram'
@@ -43,6 +45,7 @@ import SpectrogramDrawer from '@/lib/wavesurfer/wavesurfer.drawer.spectrogram.js
 import Annotation from './Annotation'
 import ElevationManager from '@/lib/annotations/elevation_manager'
 
+import { mapActions, mapState } from 'vuex'
 
 export default {
   components: { Annotation },
@@ -51,76 +54,84 @@ export default {
   data () {
     return {
       isPlaying: false,
-      activeAnnotaion: null,
+      tmpAnnotation: null,
       playPauseIfSpace: null,
-      annotations: []
+      activeAnnotationId: null,
+      wavesurferReady: false,
+      elevations: {}
     }
   },
 
   computed: {
+    ...mapState('sound', ['sound_labels']),
     duration () {
       return this.wavesurfer.getDuration()
+    },
+
+    containerWidth () {
+      return this.wavesurfer.container.getBoundingClientRect().width
     }
   },
 
   methods: {
+    ...mapActions('sound', ['createSoundLabel', 'destroySoundLabel']),
+
     togglePlay(e) {
       if(!this.wavesurfer) return
       this.wavesurfer.playPause();
     },
 
-    removeAnnotation(index) {
-      this.annotations.splice(index, 1)
-      this.recalculateElevations()
-    },
-
     recalculateElevations() {
-      let elevationManager = new ElevationManager(this.annotations, this.activeAnnotaion, (annotation, elevation) => {
-        this.$set(annotation, 'elevation', elevation)
+      let elevationManager = new ElevationManager(this.sound_labels, this.tmpAnnotation, (annotation, elevation) => {
+        this.elevations[annotation.id] = elevation
       })
       elevationManager.recalculateElevations()
     },
 
-    setActiveAnnotation (startPos, stopPos, startProgress, stopProgress) {
+    setActiveAnnotation ({startPos, stopPos, startProgress, stopProgress, containerWidth}) {
       let min = Math.min(startPos, stopPos)
       let max = Math.max(startPos, stopPos)
 
       let minProgress = Math.min(startProgress, stopProgress)
       let maxProgress = Math.max(startProgress, stopProgress)
     
-      if (max - min <= MIN_ANNOTATION_WIDTH) return
-      if (!this.activeAnnotaion) {
-        if (this.annotations.filter((a) => a.startPos == min).length > 1) return
-        this.activeAnnotaion = {}
+      if (Math.abs(max - min) <= MIN_ANNOTATION_WIDTH) return
+      this.activateAnotation(null)
+      if (!this.tmpAnnotation) {
+        if (this.sound_labels.filter((a) => a.startPos == min).length > 1) return
+        this.tmpAnnotation = {}
       }
-      this.$set(this.activeAnnotaion, 'startPos', min)
-      this.$set(this.activeAnnotaion, 'stopPos', max)
-      this.$set(this.activeAnnotaion, 'startProgress', minProgress)
-      this.$set(this.activeAnnotaion, 'stopProgress', maxProgress)
-      this.$set(this.activeAnnotaion, 'isActive', false)
-      this.$set(this.activeAnnotaion, 'elevation', 0)
+      this.$set(this.tmpAnnotation, 'offset', this.duration * minProgress)
+      this.$set(this.tmpAnnotation, 'length', (this.duration * maxProgress) - this.tmpAnnotation.offset)
+      this.$set(this.tmpAnnotation, 'isActive', false)
+      this.$set(this.tmpAnnotation, 'id', 'active')
       this.recalculateElevations()
     },
 
-    finnishActiveAnnotation (startPos, stopPos, startProgress, stopProgress) {
-      this.setActiveAnnotation(startPos, stopPos, startProgress, stopProgress)
+    finnishActiveAnnotation ({startPos, stopPos, startProgress, stopProgress}) {
+      this.setActiveAnnotation({startPos, stopPos, startProgress, stopProgress})
       
-      if (!this.activeAnnotaion) return
-      if (this.activeAnnotaion.stopPos - this.activeAnnotaion.startPos >= MIN_ANNOTATION_WIDTH) { 
-        this.activeAnnotaion.name = NAMES.splice(0,1)[0]
-        this.annotations.push(this.activeAnnotaion)
+      if (!this.tmpAnnotation) return
+      if (Math.abs(stopPos - startPos) >= MIN_ANNOTATION_WIDTH) { 
+        let {offset, length} = this.tmpAnnotation
+        this.createSoundLabel({offset, length})
       }
-      this.activeAnnotaion = null
-      this.activateAnotation(this.annotations.length - 1)
+      this.tmpAnnotation = null
+      this.recalculateElevations()
     },
 
-    activateAnotation (index) {
-      this.annotations.forEach((a) => a.isActive = false)
-      this.annotations[index].isActive = true
+    activateAnotation (id) {
+      this.activeAnnotationId = id
     },
 
     playAnnotation(start, stop) {
       this.wavesurfer.play(this.duration * start, this.duration * stop)
+    }
+  },
+
+  watch: {
+    sound_labels () {
+      this.recalculateElevations()
     }
   },
 
@@ -148,16 +159,18 @@ export default {
       this.wavesurfer.load(this.sound_url)
 
       this.wavesurfer.on('ready', () => {
-        this.wavesurfer.spectrogram.on('dragStart', (e) => { 
-          this.setActiveAnnotation(e.startPos, e.stopPos, e.startProgress, e.stopProgress)
+        this.wavesurferReady = true
+        this.recalculateElevations()
+        this.wavesurfer.spectrogram.on('dragStart', (dragState) => { 
+          this.setActiveAnnotation(dragState)
         })
 
-        this.wavesurfer.spectrogram.on('drag', (e) => { 
-          this.setActiveAnnotation(e.startPos, e.stopPos, e.startProgress, e.stopProgress)
+        this.wavesurfer.spectrogram.on('drag', (dragState) => { 
+          this.setActiveAnnotation(dragState)
         })
 
-        this.wavesurfer.spectrogram.on('dragStop', (e) => { 
-          this.finnishActiveAnnotation(e.startPos, e.stopPos, e.startProgress, e.stopProgress)
+        this.wavesurfer.spectrogram.on('dragStop', (dragState) => { 
+          this.finnishActiveAnnotation(dragState)
         })
 
         this.playPauseIfSpace = function (e) {
@@ -183,6 +196,7 @@ export default {
   margin-top: 120px;
   margin-bottom: 20px;
   position: relative;
+  cursor: crosshair;
 }
 
 .audio-visual {

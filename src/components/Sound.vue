@@ -59,7 +59,8 @@ export default {
   props: ['id'],
 
   computed: {
-    ...mapState('sound', ['file_url', 'file_name', 'channel', 'recorded_at', 'created_at', 'duration', 'completed_analysers', 'hive_id'])
+    ...mapState('sound', ['file_url', 'file_name', 'channel', 'recorded_at', 'created_at', 
+                          'duration', 'completed_analysers', 'hive_id', 'sound_labels'])
   },
 
   methods: {
