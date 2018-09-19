@@ -42,7 +42,7 @@
       <v-container fluid>
         <v-slide-y-transition mode="out-in">
           <v-layout column>
-            <router-view/>
+            <router-view  :key="$route.fullPath"/>
           </v-layout>
         </v-slide-y-transition>
       </v-container>

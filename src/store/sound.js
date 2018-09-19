@@ -8,6 +8,9 @@ const state = {
   duration: null, 
   completed_analysers: [],
   file_url: null,
+  next_sound_id: null,
+  previous_sound_id: null,
+  corrupted: null,
   sound_labels: []
 }
 
@@ -15,7 +18,7 @@ const getters = {
 }
 
 const mutations = {
-  setSound (state, {id, file_name, channel, recorded_at, created_at, duration, completed_analysers, hive_id}) {
+  setSound (state, {id, file_name, channel, recorded_at, created_at, duration, completed_analysers, hive_id, next_sound_id, previous_sound_id, corrupted}) {
     state.id = id
     state.file_name = file_name
     state.channel = channel
@@ -24,6 +27,9 @@ const mutations = {
     state.duration = duration
     state.completed_analysers = completed_analysers
     state.hive_id = hive_id
+    state.next_sound_id = next_sound_id
+    state.previous_sound_id = previous_sound_id
+    state.corrupted = corrupted
   },
 
   resetSoundLabels (state) {
@@ -38,6 +44,14 @@ const mutations = {
     sound_label.offset = parseFloat(sound_label.offset)
     sound_label.length = parseFloat(sound_label.length)
     state.sound_labels.push(sound_label)
+  },
+
+  updateSoundLabel (state, sound_label) {
+    sound_label.offset = parseFloat(sound_label.offset)
+    sound_label.length = parseFloat(sound_label.length)
+    let existingSoundLabel = state.sound_labels.filter((sl) => sl.id === sound_label.id)[0]
+    let index = state.sound_labels.indexOf(existingSoundLabel)
+    state.sound_labels.splice(index, 1, sound_label)
   },
 
   removeSoundLabel (state, id) {
@@ -64,11 +78,26 @@ const actions = {
     })
   },
 
+  updateSound({commit, state}, sound) {
+    return this._vm.$http.put(`/sounds/${state.id}`, sound).then((response) => {
+      let sound = response.data
+      commit('setSound', sound)
+    })
+  },
+
   createSoundLabel ({commit, state}, data) {
     data.sound_id = state.id
-    this._vm.$http.post(`/sounds/${state.id}/sound_labels`, data).then((response) => {
+    return this._vm.$http.post(`/sounds/${state.id}/sound_labels`, data).then((response) => {
       let json = response.data
       commit('addSoundLabel', json)
+      return json.id
+    })
+  },
+
+  updateSoundLabel ({commit}, data) {
+    this._vm.$http.put(`/sound_labels/${data.id}`, { sound_label: data }).then((response) => {
+      let soundLabel = response.data
+      commit('updateSoundLabel', soundLabel)
     })
   },
 

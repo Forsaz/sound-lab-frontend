@@ -14,8 +14,10 @@
           key="active">
         </annotation>
         <annotation v-if="wavesurferReady" v-for="(annotation, index) in sound_labels" 
+          :id="annotation.id"
           :offset="annotation.offset"
           :length="annotation.length"
+          :label_name="annotation.label_name"
           :elevation="elevations[annotation.id]"
           :sound-duration="duration"
           :container-width="containerWidth"
@@ -114,7 +116,9 @@ export default {
       if (!this.tmpAnnotation) return
       if (Math.abs(stopPos - startPos) >= MIN_ANNOTATION_WIDTH) { 
         let {offset, length} = this.tmpAnnotation
-        this.createSoundLabel({offset, length})
+        this.createSoundLabel({offset, length}).then((id) => {
+          this.activeAnnotationId = id
+        })
       }
       this.tmpAnnotation = null
       this.recalculateElevations()
@@ -174,6 +178,7 @@ export default {
         })
 
         this.playPauseIfSpace = function (e) {
+          if(e.target.tagName === 'INPUT') return true
           if (e.keyCode === KEY_CODE_SPACE) { 
             e.preventDefault()
             this.wavesurfer.playPause()

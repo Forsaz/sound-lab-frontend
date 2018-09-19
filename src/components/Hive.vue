@@ -26,11 +26,13 @@
                   <td>
                     <router-link :to="{ name: 'sound', params: { id: props.item.id }}">
                       {{ props.item.file_name }}
-                    </router-link>
+                    </router-link> &nbsp;
+                    <v-chip color="red" text-color="white" v-if="props.item.corrupted">corrupted</v-chip>
                   </td>
                   <td>{{ props.item.channel }}</td>
                   <td>{{ props.item.recorded_at | formatDate }}</td>
                   <td>{{ props.item.duration }}</td>
+                  <td>{{ props.item.sound_labels.length }}</td>
                 </template>
               </v-data-table>
             </v-card-text>
@@ -60,7 +62,8 @@ export default {
         { text: 'Filename', value: 'file_name' },
         { text: 'Channel', value: 'channel' },
         { text: 'Recorded At', value: 'recorded_at' },
-        { text: 'Duration (Seconds)', value: 'duration' }
+        { text: 'Duration (Seconds)', value: 'duration' },
+        { text: 'Labels Count', sortable: false }
       ],
     }
   },

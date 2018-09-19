@@ -1,16 +1,24 @@
 <template>
   <div :class="{ annotation: true, active: isActive}">
-    <div class="handle" :style="{ left: startPos + 'px', width: width + 'px', top: topPosition + 'px' }" @click.stop="$emit('activate')">
+    <div class="handle" :style="{ left: startPos + 'px', width: width + 'px', top: topPosition + 'px' }" @click.stop="$emit('activate')" @mouseup.stop="" @mousedown.stop="">
       <div class="label" v-if="isActive">
         <v-card>
           <v-card-text>
-            <v-list two-line>
+            <v-list>
               <v-list-tile>
                 <v-list-tile-content>
-                  <v-list-tile-title><v-text-field label="Label" v-model="label"></v-text-field></v-list-tile-title>
-                  <v-list-tile-sub-title>
-                    <v-chip>Bird</v-chip>
-                  </v-list-tile-sub-title>
+                  <v-combobox
+                    :value="label_name"
+                    :items="recommended_labels"
+                    :search-input.sync="searchText"
+                    item-text="name"
+                    item-value="id"
+                    @input="updateLabel"
+                    chips
+                    deletable-chips
+                    label="Label"
+                  >
+                  </v-combobox>
                 </v-list-tile-content>
 
                 <v-list-tile-action>
@@ -23,7 +31,7 @@
       </div>
       <div class="remove" @click="remove"><v-icon size="15" color="white">cancel</v-icon></div>
       <div class="remove" @click="play"><v-icon size="15" color="white">play_circle_filled</v-icon></div>
-      {{label}}
+      {{label_name}}
     </div>
 
     
@@ -33,13 +41,18 @@
 
 <script>
 
+import _ from 'underscore'
+import { mapActions } from 'vuex';
+
 const HANDLE_HEIGHT = 25
 const BASE_TOP_POS = -35
 const ELEVATION_MARGIN = 2
 export default {
   props: {
+    id: Number,
     offset: Number,
     length: Number,
+    label_name: String,
 
     containerWidth: Number,
     soundDuration: Number,
@@ -55,11 +68,20 @@ export default {
 
   data () {
     return {
-      label: ''
+      isLoading: false,
+      searchText: null,
+      recommended_labels: []
     }
   },
 
+  watch: {
+     searchText: _.throttle(function (e) {
+        this.autocompleteLabels()
+    }, 500)
+  },
+
   computed: {
+
     width () {
       return (this.stopPos - this.startPos) 
     },
@@ -86,6 +108,22 @@ export default {
   },
 
   methods: {
+    ...mapActions('sound', ['updateSoundLabel']),
+    updateLabel (value) {
+      console.log('updateLabel ', value, typeof(value))
+      if(value && typeof(value) === 'object') {
+        this.updateSoundLabel({ id: this.id, label_name: value.name})
+      } else {
+        this.updateSoundLabel({ id: this.id, label_name: value})
+      }
+    },
+
+    autocompleteLabels () {
+      this.$http.get(`/labels`, { params: { search: this.searchText } }).then((response) => {
+        this.recommended_labels = response.data
+      })
+    },
+
     remove () {
       this.$emit('remove')
     },
@@ -93,6 +131,10 @@ export default {
     play () {
       this.$emit('play', this.startProgress, this.stopProgress)
     }
+  },
+
+  mounted() {
+    this.autocompleteLabels()
   }
 }
 </script>
@@ -136,6 +178,10 @@ export default {
     min-width: 400px;
     cursor: auto;
     z-index: 9;
+
+    .create-label-chip {
+      cursor: pointer;
+    }
   }
 }
 </style>
