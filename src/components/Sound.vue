@@ -66,8 +66,10 @@
 </template>
 
 <script>
+const PRELOAD_DELAY = 2000
 import { mapActions, mapState, mapMutations } from 'vuex'
 import AudioSample from '@/components/wavesurfer/AudioSample'
+import {delay} from 'underscore'
 
 export default {
   components: {AudioSample},
@@ -81,13 +83,22 @@ export default {
 
   methods: {
     ...mapActions('sound', ['load', 'reset', 'updateSound']),
-    ...mapMutations('sound', ['setFileUrl'])
+    ...mapMutations('sound', ['setFileUrl']),
+
+    preloadNextSound (id) {
+      this.$http.get(`/sounds/${id}/file_url`).then((response) => {
+        let url = response.data.url
+        this.$http.get(url)
+      })
+    }
   },
 
   mounted() {
-    console.log('mounted')
     this.reset()
     this.load(this.id)
+    delay(() => {
+      this.preloadNextSound(this.next_sound_id)
+    }, PRELOAD_DELAY)
   }
 }
 </script>
