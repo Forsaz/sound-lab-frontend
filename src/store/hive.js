@@ -2,6 +2,10 @@ const state = {
   id: null,
   name: null,
   soundsLoading: false,
+  recorded_ats: [],
+  maximum_recorded_at: null,
+  minimum_recorded_at: null,
+  total_sounds: 0,
   sounds: []
 }
 
@@ -17,8 +21,12 @@ const mutations = {
     state.name = name
   },
 
-  setSounds (state, sounds) {
+  setSounds (state, {sounds, meta}) {
     state.sounds = sounds
+    state.total_sounds = meta.total_count
+    state.recorded_ats = meta.recorded_ats
+    state.maximum_recorded_at = meta.maximum_recorded_at
+    state.minimum_recorded_at = meta.minimum_recorded_at
   }
 }
 
@@ -35,11 +43,18 @@ const actions = {
     })
   },
 
-  loadSounds ({commit, state}, id) {
+  loadSounds ({commit, state}, {id, pagination, filter}) {
     commit('soundsLoading')
-    this._vm.$http.get(`/hives/${id}/sounds`).then((response) => {
-      let sounds = response.data
-      commit('setSounds', sounds)
+    this._vm.$http.get(`/hives/${id}/sounds`, {
+      params: {
+        page: pagination.page,
+        per: pagination.rowsPerPage,
+        filter
+      }
+    }).then((response) => {
+      let sounds = response.data.sounds
+      let meta = response.data.meta
+      commit('setSounds', {sounds, meta})
       commit('soundsLoaded')
     })
   },

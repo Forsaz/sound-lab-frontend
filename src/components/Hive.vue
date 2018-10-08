@@ -17,11 +17,45 @@
 
               <SoundUpload :hive-id="id"></SoundUpload>
 
-              <v-btn @click="loadSounds(id)" small><v-icon>refresh</v-icon></v-btn>
+              <v-btn @click="loadFilteredSounds" small><v-icon>refresh</v-icon></v-btn>
+
+              <v-menu
+                ref="recorded_at_picker"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                :return-value.sync="filter.recorded_at"
+                lazy
+                transition="scale-transition"
+                offset-y
+                full-width
+                min-width="290px"
+              >
+                <v-text-field
+                  slot="activator"
+                  v-model="filter.recorded_at"
+                  label="Recorded At"
+                  prepend-icon="event"
+                  readonly
+                ></v-text-field>
+                <v-date-picker v-model="filter.recorded_at" no-title
+                              :min="minimum_recorded_at "
+                              :max="maximum_recorded_at "
+                              :allowed-dates="allowedFilterDates"
+                              @input="$refs.recorded_at_picker.save(filter.recorded_at)">
+                </v-date-picker>
+              </v-menu>
+
+
             </v-card-title>
 
             <v-card-text>
-              <v-data-table :headers="soundsHeaders" :items="sounds" class="elevation-0" :rows-per-page-items="[15,50,100]" :loading="soundsLoading">
+              <v-data-table class="elevation-0" 
+              :headers="soundsHeaders" 
+              :items="sounds" 
+              :total-items="total_sounds"
+              :rows-per-page-items="[15,50,100]" 
+              :loading="soundsLoading"
+              :pagination.sync="pagination">
                 <template slot="items" slot-scope="props">
                   <td>
                     <router-link :to="{ name: 'sound', params: { id: props.item.id }}">
@@ -32,7 +66,11 @@
                   <td>{{ props.item.channel }}</td>
                   <td>{{ props.item.recorded_at | formatDate }}</td>
                   <td>{{ props.item.duration }}</td>
-                  <td>{{ props.item.sound_labels.length }}</td>
+                  <td align="center">
+                    <v-chip color="primary" text-color="white" v-if="props.item.sound_labels.length > 0">
+                      {{props.item.sound_labels.length}}
+                    </v-chip>
+                  </td>
                 </template>
               </v-data-table>
             </v-card-text>
@@ -53,11 +91,15 @@ export default {
   components: {SoundUpload},
 
   computed: {
-    ...mapState('hive', ['name', 'sounds', 'soundsLoading'])
+    ...mapState('hive', ['name', 'sounds', 'total_sounds', 'soundsLoading',
+                        'recorded_ats', 'maximum_recorded_at', 'minimum_recorded_at'
+                        ])
   },
 
   data () {
     return {
+      pagination: {},
+      filter: {},
       soundsHeaders: [
         { text: 'Filename', value: 'file_name' },
         { text: 'Channel', value: 'channel' },
@@ -68,17 +110,34 @@ export default {
     }
   },
 
+  watch: {
+    pagination() {
+      this.loadFilteredSounds()
+    },
+
+    filter() {
+      this.loadFilteredSounds()
+    }
+  },
+
   methods: {
     ...mapActions('hive', ['reset','load', 'loadSounds']),
+    loadFilteredSounds() {
+      this.loadSounds({id: this.id, pagination: this.pagination, filter: this.filter})
+    },
+
+    allowedFilterDates(val) {
+      return this.recorded_ats.indexOf(val) > -1
+    }
   },
 
   mounted() {
     this.load(this.id)
-    this.loadSounds(this.id)
+    this.loadFilteredSounds()
   },
 
   beforeDestroy() {
-    this.reset()
+    // this.reset()
   }
 }
 </script>

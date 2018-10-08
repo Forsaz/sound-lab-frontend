@@ -64,7 +64,7 @@ const mutations = {
 const actions = {
   load ({commit, state}, id) {
     this._vm.$http.get(`/sounds/${id}`).then((response) => {
-      let sound = response.data
+      let sound = response.data.sound
       commit('setSound', sound)
       commit('resetSoundLabels')
       for (let sound_label of sound.sound_labels) {
