@@ -43,6 +43,8 @@
 
                 <v-flex>
                   Corrupted: <v-switch color="red" :value="corrupted" @change="updateSound({corrupted: !corrupted})"></v-switch>
+
+                  <v-btn @click="download"><v-icon>cloud_download</v-icon> &nbsp;&nbsp; Download</v-btn>
                 </v-flex>
               </v-layout>
             </v-card-text>
@@ -90,6 +92,10 @@ export default {
         let url = response.data.url
         this.$http.get(url)
       })
+    },
+
+    download() {
+      window.location.href = this.file_url
     }
   },
 
