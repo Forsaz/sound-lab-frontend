@@ -6,6 +6,10 @@
           <v-card-text>
             <v-list>
               <v-list-tile>
+                {{startProgress * soundDuration}} - {{stopProgress * soundDuration}}
+              </v-list-tile>
+
+              <v-list-tile>
                 <v-list-tile-content>
                   <v-combobox
                     :value="label_name"
