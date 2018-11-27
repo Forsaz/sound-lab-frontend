@@ -21,6 +21,8 @@ const mutations = {
 
   logout (state) {
     state.token = null
+    localStorage.removeItem('token')
+    this._vm.$http.defaults.headers.common['Authorization'] = null
   },
 
   setCurrentuser (state, {name, email}) {

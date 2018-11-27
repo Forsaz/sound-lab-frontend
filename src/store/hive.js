@@ -1,6 +1,7 @@
 const state = {
   id: null,
   name: null,
+  features_extractors: [],
   soundsLoading: false,
   recorded_ats: [],
   maximum_recorded_at: null,
@@ -16,9 +17,10 @@ const mutations = {
   soundsLoading: (state) => state.soundsLoading = true,
   soundsLoaded: (state) => state.soundsLoading = false,
 
-  setHive (state, {id, name}) {
+  setHive (state, {id, name, features_extractors}) {
     state.id = id
     state.name = name
+    state.features_extractors = features_extractors
   },
 
   setSounds (state, {sounds, meta}) {
@@ -38,7 +40,7 @@ const actions = {
 
   load ({commit}, id) {
     this._vm.$http.get(`/hives/${id}`).then((response) => {
-      let hive = response.data
+      let hive = response.data.hive
       commit('setHive', hive)
     })
   },

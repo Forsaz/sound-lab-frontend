@@ -6,6 +6,26 @@
           <v-card>
             <v-card-title primary-title>
               <h3>Hive: {{name}}</h3>
+              <div>
+                <v-menu offset-y>
+                  <v-btn
+                    slot="activator"
+                    color="primary"
+                    dark
+                  >
+                    Download Features
+                  </v-btn>
+                  <v-list>
+                    <v-list-tile
+                      v-for="extractor in features_extractors"
+                      :key="extractor"
+                      @click="downloadFeatures(extractor)"
+                    >
+                      <v-list-tile-title>Version {{ extractor }}</v-list-tile-title>
+                    </v-list-tile>
+                  </v-list>
+                </v-menu>
+              </div>
             </v-card-title>
           </v-card>
         </v-flex>
@@ -91,7 +111,7 @@ export default {
   components: {SoundUpload},
 
   computed: {
-    ...mapState('hive', ['name', 'sounds', 'total_sounds', 'soundsLoading',
+    ...mapState('hive', ['name', 'sounds', 'features_extractors', 'total_sounds', 'soundsLoading',
                         'recorded_ats', 'maximum_recorded_at', 'minimum_recorded_at'
                         ])
   },
@@ -128,6 +148,26 @@ export default {
 
     allowedFilterDates(val) {
       return this.recorded_ats.indexOf(val) > -1
+    },
+
+    downloadFeatures(extractor) {
+      this.$http.get(`/hives/${this.id}/download_features`, {
+        params: { features_extractor: extractor }
+      }).then(({data}) => {
+        let blob = new Blob([data])
+        let blobURL = window.URL.createObjectURL(blob)
+
+        let a = document.createElement('a')
+        a.href = blobURL
+        a.download = `features-${extractor}.csv`
+        document.body.appendChild(a)
+        a.click()
+
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(blobURL);  
+        }, 0); 
+      })
     }
   },
 

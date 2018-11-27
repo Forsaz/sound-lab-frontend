@@ -17,7 +17,7 @@ const actions = {
   load ({commit}) {
     commit('loading')
     this._vm.$http.get('/hives').then((response) => {
-      let hives = response.data
+      let hives = response.data.hives
       commit('setHives', hives)
       commit('loaded')
     })
