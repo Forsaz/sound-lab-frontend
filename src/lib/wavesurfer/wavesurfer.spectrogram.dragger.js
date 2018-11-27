@@ -1,3 +1,5 @@
+import _ from 'underscore'
+
 class Dragger {
   constructor (eventTarget, container) {
     this.eventTarget = eventTarget;
@@ -12,6 +14,8 @@ class Dragger {
     this.container.addEventListener('mousedown', (e) => { this.startDrag(e); });
     this.container.addEventListener('mouseup', (e) => { this.stopDrag(e); });
     this.container.addEventListener('mousemove', (e) => { this.drag(e); });
+    this.container.addEventListener('mousemove', _.throttle((e) => { this.reportPosition(e); }, 40));
+    this.container.addEventListener('mouseout', (e) => { this.reportPosition(null)})
   }
 
   startDrag (e) {
@@ -39,6 +43,16 @@ class Dragger {
     this.fireEvent('drag', this.dragState);
   }
 
+  reportPosition (e) {
+    if(!e) {
+      this.fireEvent('cursorMove', {progress: null});
+      return
+    }
+    let progress = this.getProgress({clientX: e.clientX});
+    console.log({progress})
+    this.fireEvent('cursorMove', {progress});
+  }
+
   reset () {
     this.dragState.startPos = null;
     this.dragState.stopPos = null;
@@ -61,7 +75,7 @@ class Dragger {
   }
 
   log () {
-    // console.log(this.dragState);
+    console.log(this.dragState);
   }
 
   fireEvent (eventName, state) {

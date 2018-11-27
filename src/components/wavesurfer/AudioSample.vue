@@ -31,6 +31,9 @@
 
       </div>
       <v-btn @click.prevent="togglePlay">Play / Pause (space)</v-btn>
+      <v-badge>
+        {{cursorAbsoluteProgress}}
+      </v-badge>
     </div>
   </div>
 </template>
@@ -60,6 +63,7 @@ export default {
       playPauseIfSpace: null,
       activeAnnotationId: null,
       wavesurferReady: false,
+      cursorProgress: null,
       elevations: {}
     }
   },
@@ -68,6 +72,11 @@ export default {
     ...mapState('sound', ['sound_labels']),
     duration () {
       return this.wavesurfer.getDuration()
+    },
+
+    cursorAbsoluteProgress () {
+      if(!this.cursorProgress) return null 
+      return Math.round(this.duration * this.cursorProgress * 100) / 100
     },
 
     containerWidth () {
@@ -175,6 +184,10 @@ export default {
 
         this.wavesurfer.spectrogram.on('dragStop', (dragState) => { 
           this.finnishActiveAnnotation(dragState)
+        })
+
+        this.wavesurfer.spectrogram.on('cursorMove', ({progress}) => { 
+          this.cursorProgress = progress
         })
 
         this.playPauseIfSpace = function (e) {
