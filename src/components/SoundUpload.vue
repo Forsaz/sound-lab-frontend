@@ -38,7 +38,7 @@
                         <v-list-tile-sub-title>
                             <v-slider
                               v-model="simultaneousUploads"
-                              max="10"
+                              max="20"
                               min="0"
                             ></v-slider>
                         </v-list-tile-sub-title>
@@ -116,9 +116,10 @@
                 </v-list>
               </v-menu>
               <v-btn flat @click.native="cancel">Cancel Uncompleted</v-btn>
+              <v-btn flat @click="showFileList = !showFileList">Toggle File List</v-btn>
               <v-btn flat :loading="uploading" @click="retry">Retry</v-btn>
             </v-toolbar>
-            <v-list>
+            <v-list v-if="showFileList">
               <v-list-tile v-for="(file, index) in files" :key="index">
                 <v-list-tile-avatar>
                   <v-icon v-show="file.status === 'queued'">queue_music</v-icon>
@@ -162,6 +163,7 @@ export default {
   data() {
     return {
       dialog: false,
+      showFileList: false,
       files: [],
       uploading: false,
       uploadsInProgress: 0,
