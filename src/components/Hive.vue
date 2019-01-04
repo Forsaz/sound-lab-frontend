@@ -25,6 +25,11 @@
                     </v-list-tile>
                   </v-list>
                 </v-menu>
+
+                <span v-if="features_downloading">
+                  <v-progress-circular indeterminate/>
+                  Downloading features: {{features_downloading_size | filesize}}
+                </span>
               </div>
             </v-card-title>
           </v-card>
@@ -105,6 +110,7 @@
 
 import { mapActions, mapState } from 'vuex'
 import SoundUpload from '@/components/SoundUpload'
+import _ from 'underscore'
 
 export default {
   props: ['id'],
@@ -118,6 +124,8 @@ export default {
 
   data () {
     return {
+      features_downloading: false,
+      features_downloading_size: 0,
       pagination: {},
       filter: {},
       soundsHeaders: [
@@ -151,9 +159,13 @@ export default {
     },
 
     downloadFeatures(extractor) {
+      this.features_downloading = true
+      this.features_downloading_size = 0
       this.$http.get(`/hives/${this.id}/download_features`, {
+        onDownloadProgress: _.throttle((e) => this.downloadFeaturesProgress(e), 500),
         params: { features_extractor: extractor }
       }).then(({data}) => {
+        this.features_downloading = false
         let blob = new Blob([data])
         let blobURL = window.URL.createObjectURL(blob)
 
@@ -168,6 +180,10 @@ export default {
           window.URL.revokeObjectURL(blobURL);  
         }, 0); 
       })
+    },
+
+    downloadFeaturesProgress(progressEvent) {
+      this.features_downloading_size = progressEvent.loaded
     }
   },
 
