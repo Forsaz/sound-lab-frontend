@@ -49,7 +49,6 @@ class Dragger {
       return
     }
     let progress = this.getProgress({clientX: e.clientX});
-    console.log({progress})
     this.fireEvent('cursorMove', {progress});
   }
 

@@ -80,7 +80,7 @@ const actions = {
 
   updateSound({commit, state}, sound) {
     return this._vm.$http.put(`/sounds/${state.id}`, sound).then((response) => {
-      let sound = response.data
+      let {sound} = response.data
       commit('setSound', sound)
     })
   },

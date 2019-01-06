@@ -211,7 +211,7 @@ export default {
 
 <style lang="scss" scoped>
 .spectrogram-container {
-  margin-top: 120px;
+  margin-top: 80px;
   margin-bottom: 20px;
   position: relative;
   cursor: crosshair;
