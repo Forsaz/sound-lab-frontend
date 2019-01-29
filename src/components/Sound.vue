@@ -102,7 +102,7 @@
                 <v-card-text>
                   <audio-sample :sound_url="file_url" v-if="file_url"></audio-sample>
 
-                  <features-chart :sound_slices="sound_slices" v-if="sound_slices" />
+                  <features-chart :sound_slices="sound_slices" :duration="duration" v-if="sound_slices" />
                 </v-card-text>
               </v-card>
             </v-flex>

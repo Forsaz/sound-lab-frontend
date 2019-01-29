@@ -31,7 +31,8 @@ import { mapState, mapMutations } from 'vuex'
 
 export default {
   props: {
-    sound_slices: Array
+    sound_slices: Array,
+    duration: String
   },
 
   computed: {
@@ -82,10 +83,10 @@ export default {
       let margin = {top: 20, right: 30, bottom: 30, left: 60},
           width = this.$refs.chart.offsetWidth - margin.left - margin.right,
           height = 200 - margin.top - margin.bottom,
-          xTicks = 10, yTicks = 5;
+          xTicks = Math.ceil(parseFloat(this.duration)) * 2, yTicks = 5;
 
       let xScale = d3.scaleLinear()
-          .domain([0, d3.max(dataset, function(d){ return d.offset; })])
+          .domain([0, d3.max(dataset, function(d){ return parseFloat(d.offset); })])
           .range([0, width]);
 
       let yScale = d3.scaleLinear()
@@ -93,7 +94,7 @@ export default {
           .range([height, 0]);
 
       let line = d3.line()
-          .x(function(d) { return xScale(d.offset); })
+          .x(function(d) { return xScale(parseFloat(d.offset)); })
           .y(function(d) { return yScale(d.features[feature]); });
 
       let svg = d3.select(this.$refs['chart'])
@@ -123,7 +124,7 @@ export default {
         .enter()
         .append('circle')
         .attr("class", "dot")
-        .attr("cx", function(d, i) { return xScale(d.offset) })
+        .attr("cx", function(d, i) { return xScale(parseFloat(d.offset)) })
         .attr("cy", function(d) { return yScale(parseFloat(d.features[feature])) })
         .attr("r", 8)
         .on('mouseover', d => {
