@@ -44,7 +44,7 @@ const MIN_ANNOTATION_WIDTH = 10
 const KEY_CODE_SPACE = 32
 let COUNTER = 1
 
-import WaveSurfer from 'wavesurfer.js/src/wavesurfer'
+import 'wavesurfer.js'
 import Spectrogram from '@/lib/wavesurfer/wavesurfer.spectrogram'
 import SpectrogramDrawer from '@/lib/wavesurfer/wavesurfer.drawer.spectrogram.js'
 import Annotation from './Annotation'
@@ -150,8 +150,9 @@ export default {
 
   mounted() {
     this.$nextTick(() => {
+      if (!this.$refs['waveform-container']) return true
       this.wavesurfer = WaveSurfer.create({
-        container: '.waveform-container',
+        container: this.$refs['waveform-container'],
         waveColor: 'violet',
         progressColor: 'purple',
         renderer: SpectrogramDrawer,
@@ -164,7 +165,9 @@ export default {
           Spectrogram.create({ 
             container: '.spectrogram-container', 
             labels: false,
-            heightScale: 2
+            heightScale: 2,
+            fftSamples: 512,
+            windowFunc: 'hann'
           })
         ]
       })

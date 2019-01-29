@@ -29,7 +29,7 @@
 
                 <v-card-text>
                   <v-layout row wrap>
-                    <v-flex>
+                    <v-flex md4>
                       <v-list dense class="narrow-list">
 
                         <v-list-tile>
@@ -55,7 +55,26 @@
                       </v-list>
                     </v-flex>
 
-                    <v-flex>
+                    <v-flex md4>
+                      <v-list dense class="narrow-list">
+
+                        <v-list-tile>
+                          <v-list-tile-content>
+                            <v-list-tile-title>Coefficients high</v-list-tile-title>
+                            <!-- <v-list-tile-sub-title>{{coeffs}}</v-list-tile-sub-title> -->
+                          </v-list-tile-content>
+                        </v-list-tile>
+
+                        <v-list-tile>
+                          <v-list-tile-content>
+                            <v-list-tile-title>Coefficient Low</v-list-tile-title>
+                            <!-- <v-list-tile-sub-title>{{coeffs}}</v-list-tile-sub-title> -->
+                          </v-list-tile-content>
+                        </v-list-tile>
+                      </v-list>
+                    </v-flex>
+
+                    <v-flex md4>
 
                       <v-list dense class="narrow-list">
 
@@ -69,7 +88,7 @@
                         </v-list-tile>
                       </v-list>
 
-                      <v-btn @click="download"><v-icon>cloud_download</v-icon> &nbsp;&nbsp; Download</v-btn>
+                      <v-btn :href="file_url"><v-icon>cloud_download</v-icon> &nbsp;&nbsp; Download</v-btn>
                     </v-flex>
                   </v-layout>
                 </v-card-text>
@@ -82,6 +101,8 @@
 
                 <v-card-text>
                   <audio-sample :sound_url="file_url" v-if="file_url"></audio-sample>
+
+                  <features-chart :sound_slices="sound_slices" v-if="sound_slices" />
                 </v-card-text>
               </v-card>
             </v-flex>
@@ -98,15 +119,16 @@ const PRELOAD_DELAY = 2000
 import { mapActions, mapState, mapMutations } from 'vuex'
 import AudioSample from '@/components/wavesurfer/AudioSample'
 import {delay} from 'underscore'
+import FeaturesChart from '@/components/FeaturesChart'
 
 export default {
-  components: {AudioSample},
+  components: {AudioSample, FeaturesChart},
   props: ['id'],
 
   computed: {
     ...mapState('sound', ['file_url', 'file_name', 'channel', 'recorded_at', 'created_at', 
                           'duration', 'completed_analysers', 'hive_id', 'sound_labels',
-                          'previous_sound_id', 'next_sound_id', 'corrupted'])
+                          'previous_sound_id', 'next_sound_id', 'corrupted', 'coeffs', 'sound_slices'])
   },
 
   methods: {

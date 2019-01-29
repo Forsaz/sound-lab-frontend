@@ -74,7 +74,7 @@ class Dragger {
   }
 
   log () {
-    console.log(this.dragState);
+    // console.log(this.dragState);
   }
 
   fireEvent (eventName, state) {

@@ -11,14 +11,19 @@ const state = {
   next_sound_id: null,
   previous_sound_id: null,
   corrupted: null,
-  sound_labels: []
+  coeffs: {},
+  sound_labels: [],
+  sound_slices: [],
+
+  chartSelectedFeature: null
 }
 
 const getters = {
 }
 
 const mutations = {
-  setSound (state, {id, file_name, channel, recorded_at, created_at, duration, completed_analysers, hive_id, next_sound_id, previous_sound_id, corrupted}) {
+  setSound (state, {id, file_name, channel, recorded_at, created_at, duration, completed_analysers,
+                    hive_id, next_sound_id, previous_sound_id, corrupted, coeffs, sound_slices}) {
     state.id = id
     state.file_name = file_name
     state.channel = channel
@@ -30,6 +35,8 @@ const mutations = {
     state.next_sound_id = next_sound_id
     state.previous_sound_id = previous_sound_id
     state.corrupted = corrupted
+    state.coeffs = coeffs
+    state.sound_slices = sound_slices
   },
 
   resetSoundLabels (state) {
@@ -58,6 +65,10 @@ const mutations = {
     let sound_label = state.sound_labels.find((sl) => sl.id === id )
     let index = state.sound_labels.indexOf(sound_label)
     state.sound_labels.splice(index,1)
+  },
+
+  selectChartFeature (state, feature) {
+    state.chartSelectedFeature = feature
   }
 }
 

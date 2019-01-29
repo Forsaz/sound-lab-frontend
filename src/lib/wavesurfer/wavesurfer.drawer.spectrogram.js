@@ -260,7 +260,6 @@ export default class MultiCanvas extends Drawer {
      * rendered
      */
     drawBars(peaks, channelIndex, start, end) {
-        console.log('Drawing bars')
         return this.prepareDraw(
             peaks,
             channelIndex,
@@ -318,7 +317,6 @@ export default class MultiCanvas extends Drawer {
      * rendered
      */
     drawWave(peaks, channelIndex, start, end) {
-        console.log('Drawing wave')
         return this.prepareDraw(
             peaks,
             channelIndex,
