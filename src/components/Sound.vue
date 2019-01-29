@@ -60,15 +60,22 @@
 
                         <v-list-tile>
                           <v-list-tile-content>
-                            <v-list-tile-title>Coefficients high</v-list-tile-title>
-                            <!-- <v-list-tile-sub-title>{{coeffs}}</v-list-tile-sub-title> -->
+                            <v-list-tile-title>Coefficient high</v-list-tile-title>
+                            <v-list-tile-sub-title>{{coeffs.ch}}</v-list-tile-sub-title>
                           </v-list-tile-content>
                         </v-list-tile>
 
                         <v-list-tile>
                           <v-list-tile-content>
                             <v-list-tile-title>Coefficient Low</v-list-tile-title>
-                            <!-- <v-list-tile-sub-title>{{coeffs}}</v-list-tile-sub-title> -->
+                            <v-list-tile-sub-title>{{coeffs.cl}}</v-list-tile-sub-title>
+                          </v-list-tile-content>
+                        </v-list-tile>
+
+                        <v-list-tile>
+                          <v-list-tile-content>
+                            <v-list-tile-title>Coefficient Full</v-list-tile-title>
+                            <v-list-tile-sub-title>{{coeffs.c}}</v-list-tile-sub-title>
                           </v-list-tile-content>
                         </v-list-tile>
                       </v-list>
