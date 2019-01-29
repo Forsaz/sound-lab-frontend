@@ -91,6 +91,8 @@
                   <td>{{ props.item.channel }}</td>
                   <td>{{ props.item.recorded_at | formatDate }}</td>
                   <td>{{ props.item.duration }}</td>
+                  <td>{{ props.item.coeffs.ch }}</td>
+                  <td>{{ props.item.coeffs.c }}</td>
                   <td align="center">
                     <v-chip color="primary" text-color="white" v-if="props.item.sound_labels.length > 0">
                       {{props.item.sound_labels.length}}
@@ -133,6 +135,8 @@ export default {
         { text: 'Channel', value: 'channel' },
         { text: 'Recorded At', value: 'recorded_at' },
         { text: 'Duration (Seconds)', value: 'duration' },
+        { text: 'Coeff High', sortable: false },
+        { text: 'Coeff Full', sortable: false },
         { text: 'Labels Count', sortable: false }
       ],
     }
